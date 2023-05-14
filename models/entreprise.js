@@ -1,34 +1,5 @@
 const mongoose = require('mongoose');
-   
-// @TODO 
-const entrepriseResultSchema = mongoose.Schema({
-        year: {
-            type: Number,
-            required: true
-        },
-        ca: {
-            type: Number,
-            required: true
-        },
-        margin: {
-            type: Number,
-            required: true
-        },
-        ebitda: {
-            type: Number,
-            required: true
-        },
-        loss: {
-            type: Number,
-            required: true
-        },
-    },
-    {
-        timestamps: true
-    }
-);
 
-// @TODO replace mongodb builtIn ID with custom ID (siren)
 const entrepriseSchema = mongoose.Schema({
     siren: {
         type: Number,
@@ -42,12 +13,22 @@ const entrepriseSchema = mongoose.Schema({
     sector: {
         type: String,
     },
-    results: [entrepriseResultSchema],
 }, 
 {
-    timestamps: true
+    timestamps: true,
+    toJSON: { virtuals: true }, // So `res.json()` and other `JSON.stringify()` functions include virtuals
+    toObject: { virtuals: true } // So `console.log()` and other functions that use `toObject()` include virtuals
 }
 );
+
+
+// Specifying a virtual with a `ref` property is how you enable virtual
+// population
+entrepriseSchema.virtual('results', {
+    ref: 'entrepriseResult',
+    localField: 'siren',
+    foreignField: 'entreprise_siren'
+  });
 
 // Indexes
 entrepriseSchema.index({ siren: 1}, { unique: true});
