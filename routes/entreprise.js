@@ -12,7 +12,7 @@ router.get('/', async (req, res, next) => {
     const endIdx = req.query.limit ? parseInt(req.query.limit) + beginIdx : undefined;
     // must be valid json strings
     const sort = req.query.sort ? JSON.parse(req.query.sort) : {createdAt: -1};
-    const query = JSON.parse(req.query.query) || {};
+    const query = req.query.query ? JSON.parse(req.query.query) : {};
 
     try {
         const entreprises = await entrepriseModel.find(query).sort(sort).exec();
@@ -48,10 +48,10 @@ router.post('/', async (req, res, next) => {
 /*
     Delete entreprise
 */
-router.delete('/:entrepriseId', async (req, res, next) => {
+router.delete('/:entrepriseSiren', async (req, res, next) => {
     // @TODO validate client data
     try {
-        await entrepriseModel.deleteOne({_id: req.params.entrepriseId});
+        await entrepriseModel.deleteOne({siren: req.params.entrepriseSiren});
         return res.status(200).json();
     } catch (error) {
         return res.status(400).json({error: error.message});
@@ -62,12 +62,12 @@ router.delete('/:entrepriseId', async (req, res, next) => {
 /*
     Create entreprise
 */
-router.post('/:entrepriseId/result', async (req, res, next) => {
+router.post('/:entrepriseSiren/result', async (req, res, next) => {
     // @TODO validate client data
-    // Check year uniquenes
+    // Check year uniqueness
     
     try {
-        const entrepriseDoc = await entrepriseModel.findById(req.params.entrepriseId)
+        const entrepriseDoc = await entrepriseModel.findOne({siren: req.params.entrepriseSiren})
         entrepriseDoc.results.push(req.body);
         await entrepriseDoc.save(); 
 
@@ -80,16 +80,16 @@ router.post('/:entrepriseId/result', async (req, res, next) => {
 
 
 /*
-    Get entreprise(s)
+    Compare entreprise results
 */
-router.get('/:entrepriseId/compare-results/', async (req, res, next) => {
+router.get('/:entrepriseSiren/compare-results/', async (req, res, next) => {
 
     const year1 = parseInt(req.query.year1);
     const year2 = parseInt(req.query.year2);
     const results = {}
 
     try {
-        const entreprise = await entrepriseModel.findById(req.params.entrepriseId).exec();
+        const entreprise = await entrepriseModel.findOne({siren :req.params.entrepriseSiren}).exec();
         // get the two years results
         entreprise.results.forEach(result => {
             if(result.year === year1 || result.year === year2){
