@@ -5,6 +5,7 @@ const PORT = process.env.PORT || 3000;
 const express = require("express");
 const app = express();
 const mongoose = require('mongoose');
+const entrepriseRouter = require('./routes/entreprise');
 
 // Database Connexion
 mongoose.connect(process.env.DATABASE_URL)
@@ -17,10 +18,10 @@ mongoose.connect(process.env.DATABASE_URL)
     )
     .catch((err) => console.log(err))
 
-// Global Middlewares
-// parse json data
+// *********** Global Middlewares ***********
+
+// Parse json data
 app.use(express.json());
 
 // Entreprise Ressource routes
-const entrepriseRouter = require('./routes/entreprise');
 app.use('/entreprise', entrepriseRouter);

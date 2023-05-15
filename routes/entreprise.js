@@ -18,9 +18,8 @@ router.get('/', async (req, res, next) => {
         sort = req.query.sort ? JSON.parse(req.query.sort) : {createdAt: -1};
         query = req.query.query ? JSON.parse(req.query.query) : {};    
     } catch (error) {
-        return res.status(400).json({ message: "query, sort params must be valid strignified json"});
+        return res.status(400).json({ message: "query && sort params must be valid strignified json"});
     }
-
 
     try {
         const entreprises = await entrepriseModel.find(query).sort(sort).populate('results').exec();
@@ -42,11 +41,9 @@ router.get('/', async (req, res, next) => {
 /*
     Create entreprise
 */
-
-
 router.post('/', async (req, res, next) => {
-    // @TODO move joi schema definition out of handler for better performance
 
+    // @TODO move joi schema definition out of handler for better performance
     const bodySchema = Joi.object({
         siren: Joi.number().integer().required(),
         name: Joi.string().required(),
@@ -89,6 +86,7 @@ router.delete('/:entrepriseSiren', async (req, res, next) => {
     Create entreprise's result
 */
 router.post('/:entrepriseSiren/result', async (req, res, next) => {
+
     // @TODO move joi schema definition out of handler for better performance
     const bodySchema = Joi.object({
         year: Joi.number().integer().required(),
