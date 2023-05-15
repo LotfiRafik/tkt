@@ -120,8 +120,20 @@ router.post('/:entrepriseSiren/result', async (req, res, next) => {
 */
 router.get('/:entrepriseSiren/compare-results/', async (req, res, next) => {
 
-    const year1 = parseInt(req.query.year1);
-    const year2 = parseInt(req.query.year2);
+    // @TODO move joi schema definition out of handler for better performance
+    const reqQuerySchema = Joi.object({
+        year1: Joi.number().integer().required(),
+        year2: Joi.number().integer().required(),
+    });
+
+    // Validate client data
+    const validatedReqQuery = reqQuerySchema.validate(req.query);
+    if(validatedReqQuery.error){
+        return res.status(400).json({error: validatedReqQuery.error.details});
+    }
+
+    const year1 = req.query.year1;
+    const year2 = req.query.year2;
     const results = {}
 
     try {
